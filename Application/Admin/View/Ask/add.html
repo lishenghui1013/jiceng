@@ -1,0 +1,153 @@
+<extend name="Public/base" />
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>提问管理 - {:(isset($detail['id'])?'查看':'新增')}提问管理</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="" id="health_form">
+                <if condition="isset($detail['id'])">
+                    <input type="hidden" name="id" value="{$detail['id']}">
+                </if>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>问题描述</label>
+                    <div class="layui-input-block">
+                        <input type="text"  readonly value="{:(isset($detail['content'])?$detail['content']:'')}" lay-verify="required" placeholder="请输入标题" class="layui-input">
+                    </div>
+                </div>
+				 <div class="layui-form-item">
+				      <label class="layui-form-label">图片</label>
+					  <volist name="img" id="vo">
+					      <img  style="width:212px;height:150px" src="{$vo}">
+						  <input type="hidden"  value="{$vo}">
+					  </volist>
+				      <!-- <input type="file" name="photo" accept="image/jpg,image/jpeg,image/png,image/gif" id="file-1" /> -->
+		        </div>
+				<!-- <script>
+				// 上传认证
+				$("#file-1").change(function() {
+					var formData = new FormData($("#health_form")[0]); 
+					
+					 $.ajax({  
+						  url: '{:U("upload")}' ,  
+						  type: 'POST',  
+						  data: formData,  
+						  async: false,  
+						  cache: false,  
+						  contentType: false,  
+						  processData: false,  
+						  success: function (returndata) {  
+                              //alert(returndata);						  
+							  var img=JSON.parse(returndata);
+							  var html='<img style="width:212px;height:150px" src="'+img+'" /><input type="hidden" name="img[]" value="'+img+'">';
+							  $("#file-1").before(html);					  
+						  },  
+						  error: function (returndata) {  
+							  alert('上传错误，请刷新页面重试');  
+						  }  
+					 });  
+				})
+				</script> -->
+                <!-- <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 是否隐藏</label>
+                    <div class="layui-input-block">
+					 
+                        <input type="checkbox" name="ifshow" lay-skin="switch" lay-text="下架|上线" {:((isset($detail['ifshow']) && $detail['ifshow']==1)?'checked':'')}>
+                   
+					</div>
+                </div> -->
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">提问人</label>
+                    <div class="layui-input-block">
+                        <input type="text" readonly value="{:(isset($detail['username'])?$detail['username']:'')}" placeholder="请输入提问人" class="layui-input">
+                    </div>
+                </div>
+				<div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">咨询医生</label>
+                    <div class="layui-input-block">
+					<input type="hidden"  value="{$detail['doctorid']}">
+                        <input type="text" readonly  value="{:(isset($detail['doctorname'])?$detail['doctorname']:'')}" class="layui-input">
+                    </div>
+                </div>
+				<div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">回复记录</label>
+                    <div class="layui-input-block">
+					<volist name="reply" id="vo">
+                        <input type="text" readonly  value="{$vo['pubtime']|date="Y-m-d H:i:s",###}---{$vo['content']}---{$vo['doctorname']}" class="layui-input">
+					</volist>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">回复</label>
+                    <div class="layui-input-block">
+					<textarea name="content" style="margin: 0px; width: 583px; height: 60px;"  ></textarea>
+				
+                       <!-- <input type="text" name="content" value="{:(isset($detail['content'])?$detail['content']:'')}" placeholder="请输入内容" class="layui-input">  -->
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">回复</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+<block name="myScript">
+    <if condition="isset($detail['id'])">
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+				//alert(data.field);
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("edit")}',
+                        data: data.field,
+                        success: function(msg){
+						//alert(msg);
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        <else />
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("add")}',
+                        data: data.field,
+                        success: function(msg){
+						//alert(msg);
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    </if>
+</block>

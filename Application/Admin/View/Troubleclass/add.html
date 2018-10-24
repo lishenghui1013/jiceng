@@ -1,0 +1,157 @@
+<extend name="Public/base" />
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>小病百科信息 - {:(isset($detail['id'])?'编辑':'新增')}</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="" id="health_form">
+                <if condition="isset($detail['id'])">
+                    <input  type="hidden" name="id" value="{$detail['id']}">
+                </if>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">顶图</label>
+                    <input type="file" name="pho" accept="image/jpg,image/jpeg,image/png,image/gif" id="file-1" />
+                    <if condition="isset($detail['img'])">
+                        <img  style="width:50px;height:100px" src="" name="img" id="photos"/>
+                    </if>
+                </div>
+                <script>
+                    $(function(){
+                        var sr="{:(isset($detail['img'])?$detail['img']:'')}";
+                        sr = sr.split('Public')[1];
+                        $("#photos").attr('src','/jiceng/Public'+sr)
+                    })
+                    //上传图片
+                    $("#file-1").change(function() {
+                        var formData = new FormData($("#health_form")[0]);
+
+                        $.ajax({
+                            url: '{:U("upload")}' ,
+                            type: 'POST',
+                            data: formData,
+                            async: false,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function (returndata) {
+                                //alert(returndata);
+                                var img=JSON.parse(returndata);
+                                //
+                                var html='<img style="width:50px;height:100px" src="'+img+'"  id="photo"/><input type="hidden" name="img" value="'+img+'">';
+                                $("#file-1").after(html);
+                                img = img.split('Public')[1];
+                                $("#photo").attr('src','/jiceng/Public'+img);
+                                $("#photos").remove();
+                            },
+                            error: function (returndata) {
+                                alert('上传错误，请刷新页面重试');
+                            }
+                        });
+                    })
+                </script>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 所属小病百科分类</label>
+                    <div class="layui-input-block">
+                        <select name="cid">
+                            <option value="0">请选择类型</option>
+                            <volist name="classList" id="vo">
+                                <option    value="{$vo[id]}" {:($detail['cid'] == $vo['id']?'selected':'')}>{$vo['class']}</option>
+                            </volist>
+                        </select>                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 小病百科名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="troubleClass" required value="{:(isset($detail['troubleClass'])?$detail['troubleClass']:'')}" lay-verify="required" placeholder="请输入小病百科名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>常见表现</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="Commperforman">{:(isset($detail['Commperforman'])?$detail['Commperforman']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>形成原因</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="why">{:(isset($detail['why'])?$detail['why']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>生活建议</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="idea">{:(isset($detail['idea'])?$detail['idea']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>解决方法</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="way">{:(isset($detail['way'])?$detail['way']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+
+<block name="myScript">
+    <if condition="isset($detail['id'])">
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("edit")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        <else />
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("add")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    </if>
+</block>

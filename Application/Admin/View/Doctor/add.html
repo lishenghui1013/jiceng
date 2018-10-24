@@ -1,0 +1,254 @@
+<extend name="Public/base" />
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>医生管理 - {:(isset($detail['id'])?'编辑':'新增')}一医生</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="" id="health_form">
+                <if condition="isset($detail['id'])">
+                    <input  type="hidden" name="id" value="{$detail['id']}">
+                </if>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 所属诊所</label>
+                    <div class="layui-input-block">
+                        <select name="hospital" lay-filter="hospital">
+                            <option value="0">请选择类型</option>
+                            <volist name="hospitalList" id="vo">
+                                <option    value="{$vo[id]}" {:($detail['hospital'] == $vo['id']?'selected':'')}>{$vo['hospitalname']}</option>
+                            </volist>
+                        </select>                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 诊所科室类别</label>
+                    <div class="layui-input-block">
+                        <select name="department" lay-filter="department">
+                            <option value="0">请选择类型</option>
+                            <volist name="dp" id="vo">
+                             <option    value="{$vo[id]}" {:($detail['department'] == $vo['id']?'selected':'')}>{$vo['dname']}</option>
+                            </volist>
+                        </select>                    </div>
+                </div>
+                
+                <script>
+				//初始数据
+				//var areaData = Area;
+				var $form;
+				var form;
+				var $;
+				layui.use(['jquery', 'form'], function() {
+					$ = layui.jquery;
+					form = layui.form();
+					$form = $('form');
+					loadkeshi();
+				});
+				 //加载市数据
+				function loadkeshi() {
+					form.on('select(hospital)', function(data) {
+						var value = data.value;
+						//alert(value);
+						$.ajax({
+									type: "POST",
+									url: '{:U("ajaxdepartment")}',
+									data:  {"hospital" :value},
+									success: function(msg){
+									//alert(msg);
+									var areas=JSON.parse(msg);
+										if(msg){
+											var areaHtml = '';
+											for (var i = 0; i < areas.length; i++) {
+												areaHtml += '<option value="' + areas[i].id + '">' + areas[i].dname + '</option>';
+											}
+											$form.find('select[name=department]').html(areaHtml).parent().show();
+											form.render();
+										}else{
+											parent.layer.msg(msg.msg, {
+												icon: 5,
+												shade: [0.6, '#393D49'],
+												time:1500
+											});
+										}
+									}
+								});
+						
+					});
+				}
+			</script>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 医生名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="doctorname" required value="{:(isset($detail['doctorname'])?$detail['doctorname']:'')}" lay-verify="required" placeholder="请输入医生名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 性别</label>
+                    <div class="layui-input-block">
+
+                  <input type="radio" name="sex" value="1" lay-verify="required" class="layui-input" title="男" <if condition="$detail['sex'] eq 1" >checked</if>>
+                        <input type="radio" name="sex" value="0" lay-verify="required" class="layui-input" title="女" <if condition="$detail['sex'] eq 0" >checked</if>>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 从业年限</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="workyears" value="{:(isset($detail['workyears'])?$detail['workyears']:'')}" lay-verify="required" placeholder="请输入从业年限" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 排序</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="paixu" required value="{:(isset($detail['paixu'])?$detail['paixu']:'')}" lay-verify="required" placeholder="请输入排序" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" required value="{:(isset($detail['phone'])?$detail['phone']:'')}" lay-verify="required" placeholder="请输入联系电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 职务</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="jobtitle" required value="{:(isset($detail['jobtitle'])?$detail['jobtitle']:'')}" lay-verify="required" placeholder="请输入联系电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 出诊时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="visittime" required value="{:(isset($detail['visittime'])?$detail['visittime']:'')}" lay-verify="required" placeholder="请输入联系电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">头像</label>
+                    <input type="file" name="img" accept="image/jpg,image/jpeg,image/png,image/gif" id="file-1" />
+
+                    <if condition="isset($detail['pic'])">
+                        <img  style="width:50px;height:100px" src="" name="pic"  id="photos"/>
+                    </if>
+
+                </div>
+                <script>
+                    $(function(){
+                        var sr="{:(isset($detail['pic'])?$detail['pic']:'')}";
+                        console.log(sr);
+                        sr = sr.split('Public')[1];
+                        console.log(sr);
+                        $("#photos").attr('src','/jiceng/Public'+sr)
+                    })
+                    /*function getRootPath(){
+                        var strFullPath=window.document.location.href;
+                        var strPath=window.document.location.pathname;
+                        var pos=strFullPath.indexOf(strPath);
+                        var prePath=strFullPath.substring(0,pos);
+                        var postPath=strPath.substring(0,strPath.substr(1).indexOf('/')+1);
+                        return(prePath+postPath);
+                    }
+                    var root_path = getRootPath();*/
+                    //上传图片
+                    $("#file-1").change(function() {
+                        var formData = new FormData($("#health_form")[0]);
+
+                        $.ajax({
+                            url: '{:U("upload")}' ,
+                            type: 'POST',
+                            data: formData,
+                            async: false,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function (returndata) {
+                                
+                                var img=JSON.parse(returndata);
+
+                                /*img = img.slice(2);*/
+                                //
+                                var html='<img style="width:50px;height:100px" src="'+img+'"  id="photo"/><input type="hidden" name="pic" value="'+img+'">';
+                                $("#file-1").after(html);
+                                img = img.split('Public')[1];
+                                $("#photo").attr('src','/jiceng/Public'+img);
+                                $("#photos").remove();
+                            },
+                            error: function (returndata) {
+                                alert('上传错误，请刷新页面重试');
+                            }
+                        });
+                    })
+                </script>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 擅长领域</label>
+                    <div class="layui-input-block">
+                        <textarea  cols="100" name="specialty">{:(isset($detail['specialty'])?$detail['specialty']:'')}</textarea>                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 医生介绍</label>
+                    <div class="layui-input-block">
+                        <textarea  cols="100" name="doctorintro">{:(isset($detail['doctorintro'])?$detail['doctorintro']:'')}</textarea>                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+
+<block name="myScript">
+    <if condition="isset($detail['id'])">
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("edit")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        <else />
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("add")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+
+
+    </if>
+</block>

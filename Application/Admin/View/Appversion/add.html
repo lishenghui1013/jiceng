@@ -1,0 +1,127 @@
+<extend name="Public/base" />
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>app版本管理 - {:(isset($detail['id'])?'编辑':'新增')}</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="" id="health_form" enctype=”multipart/form-data”>
+                <if condition="isset($detail['id'])">
+                    <input  type="hidden" name="id" value="{$detail['id']}">
+                </if>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 版本号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="app_version" required value="{:(isset($detail['app_version'])?$detail['app_version']:'')}" lay-verify="required" placeholder="请输入版本号" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 描述</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="app_desc" required value="{:(isset($detail['app_desc'])?$detail['app_desc']:'')}" lay-verify="required" placeholder="请输入描述" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">apk路径</label>
+                    <input type="file" name="pho" accept="apk" id="file-1" />
+                    <if condition="isset($detail['app_url'])">
+                        <input type="hidden" name="app_url"  id="photos" value="{:(isset($detail['app_url'])?$detail['app_url']:'')}"/>
+                    </if>
+                </div>
+                <script>
+                    $(function(){
+                        //var sr="isset($detail['app_url'])";
+                        //sr = sr.split('Public')[1];
+                       // $('#photos').val();
+                    })
+                    //上传图片
+                    $("#file-1").change(function() {
+                        var formData = new FormData($("#health_form")[0]);
+
+                        $.ajax({
+                            url: '{:U("upload")}' ,
+                            type: 'POST',
+                            data: formData,
+                            async: false,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function (returndata) {
+                                alert(returndata);
+                                var url=JSON.parse(returndata);
+                                url = url.split('Public')[1];
+                                var html='<input type="hidden" name="app_url" value="/jiceng/Public'+url+'">';
+                                $("#file-1").after(html);
+                                $('#photos').val("/jiceng/Public"+url);
+                            },
+                            error: function (returndata) {
+                                alert('上传错误，请刷新页面重试');
+                            }
+                        });
+                    })
+                </script>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+
+<block name="myScript">
+    <if condition="isset($detail['id'])">
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("edit")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        <else />
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("add")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    </if>
+</block>

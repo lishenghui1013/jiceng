@@ -1,0 +1,498 @@
+<extend name="Public/base"/>
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>诊所管理 - {:(isset($detail['id'])?'编辑':'新增')}诊所</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="{:U('Clinic/upload')}" method="post" enctype="multipart/form-data"
+                  id="health_form">
+                <if condition="isset($detail['id'])">
+                    <input type="hidden" name="id" value="{$detail['id']}">
+                </if>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>诊所名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hospitalname" required
+                               value="{:(isset($detail['hospitalname'])?$detail['hospitalname']:'')}"
+                               lay-verify="required" placeholder="请输入诊所名称" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>所属区域</label>
+                    <div class="layui-input-inline">
+                        <select name="cityid" lay-filter="cityid">
+                            <option value="">请选择市</option>
+                            <volist name='city' id="vo" key='k'>
+                                <option value="{$vo['cityid']}"
+                                <if condition="$vo['cityid'] eq $detail['cityid']"> selected="selected"</if>
+                                >{$vo['city']}</option>
+                            </volist>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="areasid" lay-filter="areasid">
+                            <option value="">请选择县/区</option>
+                            <volist name='area' id="vo" key='k'>
+                                <option value="{$vo['areaid']}"
+                                <if condition="$vo['areaid'] eq $detail['areasid']"> selected="selected"</if>
+                                >{$vo['area']}</option>
+                            </volist>
+                        </select>
+                    </div>
+                    <!-- <div class="layui-input-block"> -->
+                    <!-- <select name="cityid" id="city" lay-filter="city" >
+                        <volist name='city' id="vo" key='k'>
+                        <option value="{$vo['cityid']}">{$vo['city']}</option>
+                        </volist>
+                    </select> -->
+                    <!-- <select>
+					<option>请选择省份</option>
+					</select> -->
+                    <!-- <select id="city" name='cityid' style="width:100px;">
+                    <option>请选择城市</option>
+                    <volist name='city' id="vo" key='k'>
+                    <option value="{$vo['cityid']}">{$vo['city']}</option>
+                    </volist>
+                    </select> -->
+                    <!-- <select name='areasid' style="width:100px;">
+                    <option>请选择区</option>
+                    </select>
+                    </div> -->
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>排序</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="paixu" required
+                               value="{:(isset($detail['paixu'])?$detail['paixu']:'')}" lay-verify="required"
+                               placeholder="请输入排序" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hos_phone" required
+                               value="{:(isset($detail['hos_phone'])?$detail['hos_phone']:'')}" lay-verify="required"
+                               placeholder="请输入电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="hos_address" required
+                               value="{:(isset($detail['hos_address'])?$detail['hos_address']:'')}"
+                               lay-verify="required" placeholder="请输入地址" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>经纬度</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="lng" required value="{:(isset($detail['lng'])?$detail['lng']:'')}"
+                               lay-verify="required" placeholder="请输入经度" class="layui-input">
+                        <input type="text" name="lat" required value="{:(isset($detail['lat'])?$detail['lat']:'')}"
+                               lay-verify="required" placeholder="请输入纬度" class="layui-input"><br>
+                        <!--<a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" style="color: red">获取方式</a>-->
+                        <span id='get_method' style="color: red;cursor:pointer;">获取方式</span>
+
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>轮播图</label>
+                    <input name="file" class="layui-upload-file" type="file">
+                    <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                        预览图：
+                        <div class="layui-upload-list" id="demo2">
+                            <volist name="img" id="vo">
+                                <dd class="item_img" id="{$key}">
+                                    <!-- <div class="operate"><i onclick=UPLOAD_IMG_DEL({$key}) class="close layui-icon"></i></div> -->
+                                    <div class="operate">
+                                        <i onclick="toleft(this)" class="toleft layui-icon"></i>
+                                        <i onclick="toright(this)" class="toright layui-icon"></i>
+                                        <i onclick=UPLOAD_IMG_DEL({$key}) class="close layui-icon"></i>
+                                    </div>
+                                    <img style="width:150px;height:150px;margin-left:5px" src="{$vo}">
+
+                                    <input type="hidden" name="file[{$key}]" value="{$vo}">
+                                </dd>
+                            </volist>
+                        </div>
+                    </blockquote>
+                    <style>
+                        #demo2 {
+                            margin: 10px 0 0 0
+                        }
+
+                        #demo2 dd {
+                            position: relative;
+                            margin: 0 10px 10px 0;
+                            float: left
+                        }
+
+                        #demo2 .operate {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            z-index: 1
+                        }
+
+                        #demo2 .operate i {
+                            cursor: pointer;
+                            background: #2F4056;
+                            padding: 2px;
+                            line-height: 15px;
+                            text-align: center;
+                            color: #fff;
+                            margin-left: 1px;
+                            float: left;
+                            filter: alpha(opacity=80);
+                            -moz-opacity: .8;
+                            -khtml-opacity: .8;
+                            opacity: .8
+                        }
+                    </style>
+                    <!-- <div class="layui-input-block">
+                                    
+                        <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/webuploader.css" />
+                        <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/style.css" />
+                        <script  type="text/javascript" src="__PUBLIC__/js/jquery.js"></script>
+                        <script  type="text/javascript" src="__PUBLIC__/js/webuploader.js"></script>
+                        <script  type="text/javascript" src="__PUBLIC__/js/upload.js"></script>
+                        <div onload="">
+                            <div id="wrapper">
+                                <div id="container">
+                                   
+                                    <div id="uploader">
+                                        <div class="queueList">
+                                            <div id="dndArea" class="placeholder">
+                                                <div id="filePicker"></div>
+                                            </div>
+                                        </div>
+                                        <div class="statusBar" style="display:none;">
+                                            <div class="progress">
+                                                <span class="text">0%</span>
+                                                <span class="percentage"></span>
+                                            </div><div class="info"></div>
+                                            <div class="btns">
+                                                <div id="filePicker2"></div><div class="uploadBtn">开始上传</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+
+
+                    </div> -->
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>诊所介绍</label>
+                    <div class="layui-input-block">
+                        <textarea cols="100"
+                                  name="hos_intro">{:(isset($detail['hos_intro'])?$detail['hos_intro']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>收费标准</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100"
+                                  name="charge">{:(isset($detail['charge'])?$detail['charge']:'')}</textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>业务/科室介绍</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="mainwork">{:(isset($detail['mainwork'])?$detail['mainwork']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">诊疗设备</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100" name="equipment">{:(isset($detail['equipment'])?$detail['equipment']:'')}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">诊所环境</label>
+                    <div class="layui-input-block">
+                        <textarea row="3" cols="100"
+                                  name="test">{:(isset($detail['test'])?$detail['test']:'')}</textarea>
+                    </div>
+                </div>
+                <!-- <div class="layui-form-item">
+                  <label class="layui-form-label">检测项目</label>
+                  <div class="layui-input-block">
+                      <textarea row="3" cols="100" name="test">{:(isset($detail['test'])?$detail['test']:'')}</textarea>
+                  </div>
+              </div>-->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否医保</label>
+                    <div class="layui-input-block">
+                        <select name="ifyibao" lay-filter="ifyibao">
+
+                            <option value="0"
+                            <if condition="$detail['ifyibao'] eq 0"> selected="selected"</if>
+                            >否</option>
+                            <option value="1"
+                            <if condition="$detail['ifyibao'] eq 1"> selected="selected"</if>
+                            >是</option>
+
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否出诊/上门</label>
+                    <div class="layui-input-block">
+                        <select name="ifvisits" lay-filter="ifvisits">
+                            <option value="0"
+                            <if condition="$detail['ifvisits'] eq 0"> selected="selected"</if>
+                            >否</option>
+                            <option value="1"
+                            <if condition="$detail['ifvisits'] eq 1"> selected="selected"</if>
+                            >是</option>
+                        </select></div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">视频</label>
+                    <input type="file" name="pho" accept="mp4" id="file-1" value="{$detail['video']}"/>
+                    <span id="show">{$detail['video']}</span>
+                    <if condition="isset($detail['video'])">
+                        <input type="hidden" name="video" id="photos"
+                               value="{:(isset($detail['video'])?$detail['video']:'')}"/>
+                    </if>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+
+<block name="myScript">
+
+    <script>
+
+        layui.use('upload', function () {
+            layui.upload({
+                url: '{:U("upload")}' //上传接口
+                , success: function (res) { //上传成功后的回调
+                    // alert(res);
+                    var l = $("img").length;
+                    img = res;
+                    var html = '<dd class="item_img" id="' + img.imgid + '">'
+                        + '<div class="operate"><i onclick=UPLOAD_IMG_DEL(' + img.imgid + ') class="close layui-icon"></i><i onclick="toleft(this)" class="toleft layui-icon"></i><i onclick="toright(this)" class="toright layui-icon"></i></div>'
+                        + '<img style="margin-left:5px;width:150px;height:150px" src="' + img.url + '" /><input type="hidden" name="file[' + img.imgid + ']" value="' + img.url + '">';
+
+                    $('#demo2').append(html);
+                }
+            });
+
+
+        });
+        /*$(function(){
+            var sr="{:(isset($detail['video'])?$detail['video']:'')}";
+
+            //sr = sr.split('Public')[1];
+            var html="<input   name='video'  id='photos' value='"+sr+"'/>";
+            console.log(html);
+            $('#file-1').after(html);
+        })*/
+        //获取坐标
+        /*var map_content = $("#map_content").val();
+        console.log(map_content);
+        $("#get_method").click(function(){
+            layer.open({
+                title: '地区拾取坐标'
+                ,content: '{:U("add")}'
+                ,area: ['500px', '300px']
+            });
+
+        });*/
+        var coordinate = '0,0';
+        var index;
+        layui.use(['layer'], function () {
+            $('#get_method').on('click', function () {
+                index = layer.open({
+                    title: '选取坐标',
+                    type: 2,
+                    area: ['100%', '100%'],
+                    maxmin: true,
+                    content: '{:U("mapcontent")}'
+                });
+
+            });
+
+
+        });
+
+        $("#file-1").change(function () {
+            var formData = new FormData($("#health_form")[0]);
+            var video = $("#photos");
+            $.ajax({
+                url: '{:U("uploads")}',
+                type: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (returndata) {
+                    var url = JSON.parse(returndata);
+                    //url = url.split('Public')[1];
+                    /* var html="<input type='hidden'  name='video'  id='photos' value='"+url+"'/>";
+
+                     $('#file-1').after(html);*/
+                    video.val(url);
+                    $("#show").html(url);
+                },
+                error: function (returndata) {
+                    alert('上传错误，请刷新页面重试');
+                }
+            });
+        })
+
+        /*
+        删除上传图片
+        */
+        function UPLOAD_IMG_DEL(divs) {
+            $("#" + divs).remove();
+        }
+
+        /*
+        多图上传变换左右位置
+        */
+        function toleft(obj) {
+            //alert(1);
+            var item = $(obj).parent().parent(".item_img");
+            var item_left = item.prev(".item_img");
+            if ($("#demo2").children(".item_img").length >= 2) {
+                if (item_left.length == 0) {
+                    item.insertAfter($("#demo2").children(".item_img:last"))
+                } else {
+                    item.insertBefore(item_left)
+                }
+            }
+        }
+
+        function toright(obj) {
+            var item = $(obj).parent().parent(".item_img");
+            var item_right = item.next(".item_img");
+            if ($("#demo2").children(".item_img").length >= 2) {
+                if (item_right.length == 0) {
+                    item.insertBefore($("#demo2").children(".item_img:first"))
+                } else {
+                    item.insertAfter(item_right)
+                }
+            }
+        }
+    </script>
+    <script>
+        //初始数据
+        //var areaData = Area;
+        var $form;
+        var form;
+        var $;
+        layui.use(['jquery', 'form'], function () {
+            $ = layui.jquery;
+            form = layui.form();
+            $form = $('form');
+            loadCity();
+        });
+
+        //加载市数据
+        function loadCity() {
+            form.on('select(cityid)', function (data) {
+                var value = data.value;
+                //alert(value);
+                $.ajax({
+                    type: "POST",
+                    url: '{:U("ajaxcity")}',
+                    data: {"cityid": value},
+                    success: function (msg) {
+                        //alert(msg);
+                        var areas = JSON.parse(msg);
+                        if (msg) {
+                            var areaHtml = '';
+                            for (var i = 0; i < areas.length; i++) {
+                                areaHtml += '<option value="' + areas[i].areaid + '">' + areas[i].area + '</option>';
+                            }
+                            $form.find('select[name=areasid]').html(areaHtml).parent().show();
+                            form.render();
+                        } else {
+                            parent.layer.msg(msg.msg, {
+                                icon: 5,
+                                shade: [0.6, '#393D49'],
+                                time: 1500
+                            });
+                        }
+                    }
+                });
+
+            });
+        }
+    </script>
+
+    <if condition="isset($detail['id'])">
+        <script>
+            layui.use('form', function () {
+                var form = layui.form();
+                form.on('submit(admin-form)', function (data) {
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("edit")}',
+                        data: data.field,
+                        success: function (msg) {
+                            //alert();
+                            if (msg.code == 1) {
+                                parent.location.reload();
+                            } else {
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time: 1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        <else/>
+        <script>
+            layui.use('form', function () {
+                var form = layui.form();
+                form.on('submit(admin-form)', function (data) {
+                    $.ajax({
+                        type: "POST",
+                        url: '{:U("add")}',
+                        data: data.field,
+                        success: function (msg) {
+                            if (msg.code == 1) {
+                                parent.location.reload();
+                            } else {
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time: 1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+
+
+    </if>
+</block>
