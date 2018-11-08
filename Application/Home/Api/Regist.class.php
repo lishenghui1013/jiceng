@@ -51,7 +51,7 @@ class Regist extends Base
         $PHP_SELF = $_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
         $str = substr($PHP_SELF, 1);
         $url = 'http://' . $_SERVER['HTTP_HOST'] . '/' . substr($str, 0, strpos($str, '/') + 1);
-        $preg = '/^1\d{10}$/';
+        $preg = '/^1[3456789]\d{9}$/';
         $preg_pass = '/^[\da-zA-Z]{6,20}$/';
         if (empty($tel) || !preg_match($preg, $tel)) {
             return array('cstate' => "phno");//手机号格式不正确
